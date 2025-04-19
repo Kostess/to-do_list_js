@@ -1,5 +1,4 @@
 const root = document.querySelector(`#root`);
-const listEl = document.querySelector(`#list`);
 
 const saveData = (task) => {
     const arrData = [...getData("tasks"), task]
