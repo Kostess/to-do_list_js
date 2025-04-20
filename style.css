@@ -90,3 +90,34 @@ body {
 .edit-task {
     border: none;
 }
+
+.filters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.filter {
+    background-color: #dadada;
+    color: #000;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color .3s ease;
+    font-weight: bold;
+}
+
+.filter:hover {
+    background-color: #c5c5c5;
+}
+
+.active {
+    background-color: blue;
+    color: #fff;
+}
+
+.active:hover {
+    background-color: darkblue;
+}

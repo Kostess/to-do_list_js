@@ -36,6 +36,17 @@ const updateValue = (id, text) => {
     localStorage.setItem('tasks', JSON.stringify(newArrData));
 }
 
+const setActiveFilter = () => {
+    document.querySelectorAll(`.filter`).forEach((filter) => {
+        const filterValue = localStorage.getItem('filter') || 'all';
+        if (filterValue === filter.id) {
+            filter.classList.add('active');
+        } else {
+            filter.classList.remove('active');
+        }
+    })
+}
+
 const createTask = (taskId, taskValue, taskStatus) => {
     const task = document.createElement('li');
     task.setAttribute('class', 'task');
@@ -71,34 +82,61 @@ const textWithInput = (element) => {
     element.replaceWith(editText);
     editText.focus();
 
-    root.addEventListener('keydown', (event) => {
+    const handlerKeydown = (event) => {
         if (event.key === 'Enter') {
             updateValue(element.dataset.id, editText.value);
-            outListTask();
+            setTimeout(outListTask, 10);
+
+            editText.removeEventListener('blur', handlerBlur);
+            root.removeEventListener('keydown', handlerKeydown);
         }
 
         if (event.key === 'Escape') {
             editText.value = element.textContent;
             editText.replaceWith(element);
-        }
-    })
 
-    editText.addEventListener('blur', () => {
+            editText.removeEventListener('blur', handlerBlur);
+            root.removeEventListener('keydown', handlerKeydown);
+        }
+    }
+
+    const handlerBlur = () => {
         updateValue(element.dataset.id, editText.value);
         outListTask();
-    })
 
+        root.removeEventListener('keydown', handlerKeydown);
+    }
+
+    root.addEventListener('keydown', handlerKeydown);
+    editText.addEventListener('blur', handlerBlur);
 }
 
 const outListTask = () => {
     const list = document.querySelector(`#list`);
     list.innerHTML = '';
+    const filter = localStorage.getItem('filter') || 'all';
     getData("tasks").map((item) => {
-        list.append(createTask(item.id, item.value, item.status));
+        switch (filter) {
+            case 'not-completed':
+                if (!item.status) {
+                    return list.append(createTask(item.id, item.value, item.status));
+                }
+                break;
+            case 'completed':
+                if (item.status) {
+                    return list.append(createTask(item.id, item.value, item.status));
+                }
+                break;
+            default:
+                return list.append(createTask(item.id, item.value, item.status));
+                break;
+        }
+
     })
 }
 
 window.addEventListener('load', () => {
+    setActiveFilter();
     outListTask();
 })
 
@@ -126,6 +164,12 @@ root.addEventListener('click', (event) => {
 
     if (event.target.classList.contains('checkBoxInput')) {
         updateStatus(event.target.dataset.id);
+        outListTask();
+    }
+
+    if (event.target.classList.contains('filter')) {
+        localStorage.setItem('filter', event.target.id);
+        setActiveFilter();
         outListTask();
     }
 })
